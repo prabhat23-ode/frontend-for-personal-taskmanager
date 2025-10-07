@@ -1,0 +1,19 @@
+@import url("https://fonts.googleapis.com/css2?family=Gabarito:wght@400..900&display=swap");
+
+* {
+  font-family: Gabarito;
+}
+
+body {
+  background-color: #000000;
+}
+
+.navMenu {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color:rgb(250,235,215);
+
+  &:hover {
+    border-bottom: 2px solid oklch(89.943% 0.04361 312.728);
+  }
+}

@@ -1,3 +1,4 @@
+import Nav from "../components/Nav.jsx";
 import { TbTrashXFilled } from "react-icons/tb";
 import { RiEditFill } from "react-icons/ri";
 import api from "../src/Constant.js";
@@ -34,6 +35,7 @@ export default function App() {
     });
   };
 
+  // delete task
   const deleteTask = async (id) => {
     try {
       const response = await api.delete(`/sub-task/delete-sub/${id}`);
@@ -60,6 +62,7 @@ export default function App() {
     }
   };
 
+  // complete status
   const handleToggleComplete = async (id, newStatus) => {
     try {
       const response = await api.put(`/sub-task/update-sub/${id}`, {
@@ -80,6 +83,9 @@ export default function App() {
 
   return (
     <>
+      <header>
+        <Nav />
+      </header>
       <div>
         <form
           onSubmit={handleSubmit}

@@ -1,3 +1,4 @@
+import Nav from "../components/Nav.jsx";
 import { useEffect, useState } from "react";
 import { MdMenu } from "react-icons/md";
 import { TbTrashXFilled, TbEdit } from "react-icons/tb";
@@ -25,7 +26,6 @@ export default function App() {
   }, []);
 
   const deleteTask = async (id) => {
-
     try {
       const response = await api.delete(`/task/delete/${id}`);
       setTask((previousTask) => previousTask.filter((task) => task._id !== id));
@@ -36,8 +36,22 @@ export default function App() {
     toogleComponent();
   };
 
+  // edit task
+  const editTask = async (id) => {
+    try {
+      const response = await api.patch(`/task/update/${id}`);
+      setTask((previousTask) => previousTask.filter((task) => task._id !== id));
+      console.log("successfull");
+    } catch (err) {
+      console.error(err.message);
+    }
+  };
+
   return (
     <>
+      <header>
+        <Nav />
+      </header>
       <AddNewTask />
 
       {/* tasks and options */}

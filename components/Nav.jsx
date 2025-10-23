@@ -2,12 +2,42 @@ import { Link } from "react-router";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { MdAdd, MdLogout } from "react-icons/md";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { setAuthToken } from "../src/Constant.js";
+import { useNavigate } from "react-router";
 
 export default function App() {
   const [isVisible, setIsVisible] = useState(false);
-  const [user, setUser] = useState("John Doe");
-  const [email, setEmail] = useState("jon123@gmil.com")
+  const [user, setUser] = useState("");
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("user");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        setUser(parsed.userName || parsed.name || "");
+        setEmail(parsed.email || "");
+      }
+    } catch (e) {
+      // ignore parse errors
+    }
+  }, []);
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    try {
+      setAuthToken(null);
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+    } catch (e) {
+      // ignore
+    }
+    setUser("");
+    setEmail("");
+    navigate("/");
+  };
 
   const toogleComponent = () => {
     setIsVisible(!isVisible);
@@ -19,7 +49,7 @@ export default function App() {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 text-[rgb(250,235,215)]">
           <div className="flex items-center space-x-2">
-            <h2 className="text-2xl font-semibold">{user}'s Tasks</h2>
+            <h2 className="text-2xl font-semibold">{user ? `${user}'s Tasks` : "Your Tasks"}</h2>
             <button
               onClick={toogleComponent}
               className={`text-4xl transition-all duration-300 hover:text-blue-400 ${
@@ -58,7 +88,7 @@ export default function App() {
           </div>
 
           {/* Log out */}
-          <div className="px-4 py-1 flex items-center justify-between gap-2 relative text-red-500 hover:bg-gray-800">
+          <div onClick={handleLogout} className="px-4 py-1 flex items-center justify-between gap-2 relative text-red-500 hover:bg-gray-800 cursor-pointer">
             <p href="#" className=" font-medium">
               Log Out
             </p>

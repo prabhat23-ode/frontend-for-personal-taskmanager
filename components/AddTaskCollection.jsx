@@ -1,18 +1,31 @@
 import { MdAdd } from "react-icons/md";
 import { useEffect, useState } from "react";
 import api from "../src/Constant.js";
+import { useParams } from "react-router";
 
 export default function App() {
   const [isVisible, setIsVisible] = useState(false);
+  const [disabled, setDisabled] = useState(false);
 
   const toogleComponent = (e) => {
     setIsVisible(!isVisible);
+    setDisabled(!disabled);
+    if (!isVisible) {
+      document.body.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+      document.body.style.pointerEvents = "none";
+    } else {
+      document.body.style.backgroundColor = "";
+      document.body.style.pointerEvents = "auto";
+    }
+    // // Keep the form interactive
+    // document.querySelector('form')?.style.pointerEvents = 'auto';
   };
 
+  const userId = useParams();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    userId: "1",
+    userId: userId,
     importance: "not-so-important",
   });
 
@@ -61,6 +74,7 @@ export default function App() {
         <form
           onSubmit={handleSubmit}
           className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md space-y-4"
+          style={{ pointerEvents: "auto" }}
         >
           <div>
             <label

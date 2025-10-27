@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { RiEyeFill, RiEyeCloseFill } from "react-icons/ri";
 import { Link } from "react-router";
 import api from "../src/Constant.js";
@@ -18,6 +18,8 @@ export default function App() {
   const [otpSent, setOtpSent] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(0);
+  const timerRef = useRef(null);
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -34,6 +36,26 @@ export default function App() {
       if (res.data.success) {
         alert("OTP sent successfully to your email!");
         setOtpSent(true);
+        // start 30s cooldown for resend
+        setSecondsLeft(30);
+        // clear any existing timer
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+        }
+        timerRef.current = setInterval(() => {
+          setSecondsLeft((prev) => {
+            if (prev <= 1) {
+              // stop the timer
+              if (timerRef.current) {
+                clearInterval(timerRef.current);
+                timerRef.current = null;
+              }
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
       }
     } catch (err) {
       console.error("Error sending OTP:", err.message);
@@ -54,6 +76,12 @@ export default function App() {
       if (res.data.success) {
         alert("OTP verified successfully!");
         setOtpVerified(true);
+        // clear any running resend timer once verified
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+        }
+        setSecondsLeft(0);
       } else {
         alert(res.data.message || "Invalid OTP");
       }
@@ -64,6 +92,24 @@ export default function App() {
       setLoading(false);
     }
   };
+
+  // cleanup timer on unmount or when otpVerified changes
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (otpVerified && timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+      setSecondsLeft(0);
+    }
+  }, [otpVerified]);
 
   // ✅ Submit form (only if OTP is verified)
   const handleSubmit = async (e) => {
@@ -134,13 +180,21 @@ export default function App() {
             />
             <button
               type="button"
-              disabled={!formData.email || !validateEmail(formData.email) || loading}
+              disabled={!formData.email || !validateEmail(formData.email) || loading || secondsLeft > 0 || otpVerified}
               onClick={handleSendOtp}
               className={`px-4 py-2 rounded text-white ${
-                otpSent ? "bg-gray-500" : "bg-blue-500 hover:bg-blue-600"
+                otpVerified ? "bg-gray-500" : secondsLeft > 0 ? "bg-gray-500" : "bg-blue-500 hover:bg-blue-600"
               } disabled:bg-gray-400`}
             >
-              {loading ? "Sending..." : otpSent ? "Sent" : "Send OTP"}
+              {otpVerified
+                ? "Verified"
+                : loading
+                ? "Sending..."
+                : secondsLeft > 0
+                ? `Resend in ${secondsLeft}s`
+                : otpSent
+                ? "Resend OTP"
+                : "Send OTP"}
             </button>
           </div>
           {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
@@ -228,6 +282,17 @@ export default function App() {
         >
           Sign Up
         </button>
+        {/* Existing user CTA */}
+        <div className="mt-4 text-center">
+          <span className="text-sm text-gray-600 mr-2">Existing user?</span>
+          <Link
+            to="/login"
+            className="text-sm px-3 py-1 bg-gray-800 hover:bg-gray-700 text-white rounded-md transition inline-block"
+            aria-label="Existing user - go to login"
+          >
+            Login
+          </Link>
+        </div>
       </form>
     </div>
   );

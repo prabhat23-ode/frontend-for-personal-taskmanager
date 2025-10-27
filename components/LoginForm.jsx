@@ -134,6 +134,18 @@ export default function App() {
         >
           Login
         </button>
+        {/* New user CTA */}
+        <div className="mt-4 text-center">
+          <span className="text-sm text-gray-600 mr-2">New user?</span>
+          <button
+            type="button"
+            onClick={() => navigate('/signup')}
+            className="text-sm px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-md transition"
+            aria-label="New user - go to signup"
+          >
+            signin
+          </button>
+        </div>
       </form>
     </div>
   );

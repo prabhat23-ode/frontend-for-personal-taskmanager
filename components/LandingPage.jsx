@@ -49,9 +49,13 @@ export default function App() {
               <p className="text-gray-400 mb-6">
                 Decide and complete task at your own pace.
               </p>
-              <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-md transition">
+              <Link
+                to="/login"
+                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-md transition inline-block text-center"
+                aria-label="Start a project - go to login"
+              >
                 Start a project
-              </button>
+              </Link>
             </div>
           </div>
         </section>

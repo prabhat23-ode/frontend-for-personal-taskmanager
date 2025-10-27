@@ -3,7 +3,7 @@ import { TbTrashXFilled } from "react-icons/tb";
 import { RiEditFill } from "react-icons/ri";
 import api from "../src/Constant.js";
 import { useState, useEffect } from "react";
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 
 export default function App() {
   const { taskId } = useParams();
@@ -17,6 +17,13 @@ export default function App() {
 
   useEffect(() => {
     (async () => {
+      // Redirect to login if not authenticated
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return navigate("/login");
+      } catch (e) {
+        return navigate("/login");
+      }
       try {
         const response = await api.get(`/sub-task/sub-tasks/${taskId}`);
         setTask(response.data);
